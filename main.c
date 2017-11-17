@@ -36,7 +36,7 @@ void tiraLinha(char *str){
 void insereContato(Agenda* a){
 	fflush(stdin);
 	if( a->n >= a->max ){
-		printf("PAN! Memoria Cheia! n: %d - max %d", a->n, a->max);
+		printf("Memoria Cheia! n: %d - max %d", a->n, a->max);
 		return;
 	}
 	puts("Nome: ");
@@ -52,6 +52,7 @@ void insereContato(Agenda* a){
 	fgets( a->v[a->n].telefone, 16, stdin );	
 	tiraLinha(a->v[a->n].telefone);;
 	a->n++;
+	printf("\n\n Contato inserido com sucesso !");
 }
 void gravaAgenda(Agenda a){
 	FILE* f = fopen("Agenda.dat", "wb");
@@ -102,6 +103,19 @@ int buscar(Contato* cts, int n, Contato procurado){
 	}
 	return -1;
 }
+int * buscarLetra(Contato* cts, int n, char letra){
+	int * ids = malloc(sizeof(int)*n);
+	int i;
+	for(i = 0; i < n; i++)
+		ids[i]= -1;
+	
+	for(i=0;i<n; i++){
+		if(tolower(cts[i].nome[0])== tolower(letra)){
+			ids[i] = i;
+		}
+	}
+	return ids;
+}
 int buscarContato(Agenda ag){
 	puts("Nome");
 	Contato c;
@@ -119,6 +133,29 @@ int buscarContato(Agenda ag){
 		printf("Telefone: %s\n\n\n", ag.v[idBuscado].telefone);
 		
 	}	
+}
+int buscarContatoLetra(Agenda ag){
+	printf("Procurar contatos que comecam com a letra : ");
+	Contato c;
+	char letra;
+	scanf(" %c", &letra);
+	int* idBuscados = buscarLetra(ag.v, ag.n, letra);
+	int i;
+	int encontrados = 0;
+	for(i = 0; i < ag.n; i++){
+		if(idBuscados[i] > -1){
+			printf("\n%d-", idBuscados[i]);
+			printf("Nome: %s | ", ag.v[i].nome);
+			printf("Email: %s | ", ag.v[i].email);
+			printf("Endereco: %s | ",  ag.v[i].endereco);
+			printf("Telefone: %s\n", ag.v[i].telefone);	
+			encontrados++;
+		}
+	}
+	printf("\n");
+	if(encontrados == 0)
+		printf("Nenhum contato encontrado ;( \n");
+	
 }
 void alteraContato(Agenda* a){
 	Contato c;
@@ -158,6 +195,7 @@ void alteraContato(Agenda* a){
 		if(!strcmp(tInput, "") == 0)
 			strcpy(a->v[idModificar].telefone, tInput);
 		tiraLinha(a->v[idModificar].telefone);;
+		printf("\n\nContato atualizado !!");
 	}
 	
 }
@@ -169,13 +207,13 @@ void excluiContato(Agenda* a){
 	tiraLinha(c.nome);
 	int idModificar = buscar(a->v, a->n, c);
 	if(idModificar == -1 )
-		printf("Contato Não Encontrado");
+		printf("Contato Nao Encontrado");
 	else{
 		printf("Deseja realmente excluir o contato : %s ?", a->v[idModificar].nome);		
 		char opt;
-		printf("S ou N \n");
+		printf("  S ou N \n");
 		scanf("%c", &opt);
-		if(opt == 's'){
+		if(opt == 's' || opt == 'S'){
 			a->n--;
 			int c;
 			for(c  = idModificar; c < a->n; c++ ){
@@ -206,12 +244,17 @@ int main(int argc, char *argv[]){
 	
 	do{
 		limpaTela();		
-		printf("+-- MENU --+\n");
-		printf("+ 1 -> Adicionar contato\n");
-		printf("+ 2 -> Alterar contato\n");
-		printf("+ 3 -> Listar todos contatos\n");
-		printf("+ 4 -> Buscar contato\n");	
-		printf("+ 5 -> Excluir contato\n");		
+		printf("+---------------- MENU -----------------+\n");
+		printf("| 1 -> Adicionar contato                |\n");
+		printf("| 2 -> Alterar contato                  |\n");
+		printf("| 3 -> Listar todos contatos            |\n");
+		printf("| 4 -> Buscar contato                   |\n");	
+		printf("| 5 -> Buscar Contatos por letra        |\n");	
+		printf("| 6 -> Excluir contato                  |\n");		
+		printf("+---------------------------------------+\n");	
+		printf("| 9 -> Sair                             |\n");
+		printf("+---------------------------------------+\n\n");
+		printf("->");
 		scanf("%d", &opc);
 		switch (opc){
 			case 1:{
@@ -250,6 +293,14 @@ int main(int argc, char *argv[]){
 			}
 			case 5:{
 				limpaTela();
+				Agenda ag = criaAgenda(tamanhoAgenda() + 10);
+				ag = leiaAgenda();
+				buscarContatoLetra(ag);
+				system("pause");
+				break;
+			}
+			case 6:{
+				limpaTela();
 				Agenda ag = criaAgenda(tamanhoAgenda());
 				ag = leiaAgenda();
 				excluiContato(&ag);
@@ -257,8 +308,14 @@ int main(int argc, char *argv[]){
 				system("pause");
 				break;
 			}
+			case 9:{
+				return;
+				break;
+			}
 			default:
-				printf("Opção Invalidade, tente novamente");
+				printf("Opcao Invalidade, tente novamente\n");
+				system("pause");
+				break;
 				
 		}
 	}while(sair == 0);
