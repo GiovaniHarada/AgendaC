@@ -52,7 +52,7 @@ void insereContato(Agenda* a){
 	fgets( a->v[a->n].telefone, 16, stdin );	
 	tiraLinha(a->v[a->n].telefone);;
 	a->n++;
-	printf("\n\n Contato inserido com sucesso !");
+	printf("\n\n Contato inserido com sucesso !\n");
 }
 void gravaAgenda(Agenda a){
 	FILE* f = fopen("Agenda.dat", "wb");
@@ -220,10 +220,36 @@ void excluiContato(Agenda* a){
 				a->v[c] = a->v[c+1];
 			}
 			printf("Apagado com sucesso !!\n");
-		}
-		
+		}		
+	}	
+}
+int ordenaNome(Contato a, Contato b){
+    if( strcmp(a.nome, b.nome) > 0 ){
+		return 1;
 	}
-	
+	return 0;
+}
+void BB(Contato* c, int n, int (*f)(Contato, Contato) ){	
+	int i,j;
+	for(i=0; i<n-1; i++ ){
+        for(j=0; j<n-1; j++ ){
+			//if( v[j].preco > v[j+1].preco ){
+            if( f(c[j], c[j+1]) > 0 ){
+				Contato temp = c[j];
+				c[j] = c[j+1];
+				c[j+1] = temp;
+			}
+		}
+	}
+}
+void imprimeAgendaOrdenada(Agenda a){
+	BB(a.v, a.n, ordenaNome);
+	int i;
+	for(i=0;i < a.n;i++){
+		printf("%d | ", i);
+		imprimeContato( a.v + i  );
+	}
+	printf("\n\n");
 }
 void limpaTela(){
 	system("cls");
@@ -244,16 +270,17 @@ int main(int argc, char *argv[]){
 	
 	do{
 		limpaTela();		
-		printf("+---------------- MENU -----------------+\n");
-		printf("| 1 -> Adicionar contato                |\n");
-		printf("| 2 -> Alterar contato                  |\n");
-		printf("| 3 -> Listar todos contatos            |\n");
-		printf("| 4 -> Buscar contato                   |\n");	
-		printf("| 5 -> Buscar Contatos por letra        |\n");	
-		printf("| 6 -> Excluir contato                  |\n");		
-		printf("+---------------------------------------+\n");	
-		printf("| 9 -> Sair                             |\n");
-		printf("+---------------------------------------+\n\n");
+		printf("+--------------------- MENU -----------------------+\n");
+		printf("| 1 -> Adicionar contato                           |\n");
+		printf("| 2 -> Alterar contato                             |\n");
+		printf("| 3 -> Listar todos contatos                       |\n");
+		printf("| 4 -> Listar todos contatos em ordem alfabetica   |\n");
+		printf("| 5 -> Buscar contato                              |\n");	
+		printf("| 6 -> Buscar Contatos por letra                   |\n");	
+		printf("| 7 -> Excluir contato                             |\n");		
+		printf("+--------------------------------------------------+\n");	
+		printf("| 9 -> Sair                                        |\n");
+		printf("+--------------------------------------------------+\n\n");
 		printf("->");
 		scanf("%d", &opc);
 		switch (opc){
@@ -286,8 +313,8 @@ int main(int argc, char *argv[]){
 			case 4:{
 				limpaTela();
 				Agenda ag = criaAgenda(tamanhoAgenda() + 10);
-				ag = leiaAgenda();
-				buscarContato(ag);
+				ag = leiaAgenda();				
+				imprimeAgendaOrdenada(ag);
 				system("pause");
 				break;
 			}
@@ -295,11 +322,19 @@ int main(int argc, char *argv[]){
 				limpaTela();
 				Agenda ag = criaAgenda(tamanhoAgenda() + 10);
 				ag = leiaAgenda();
-				buscarContatoLetra(ag);
+				buscarContato(ag);
 				system("pause");
 				break;
 			}
 			case 6:{
+				limpaTela();
+				Agenda ag = criaAgenda(tamanhoAgenda() + 10);
+				ag = leiaAgenda();
+				buscarContatoLetra(ag);
+				system("pause");
+				break;
+			}
+			case 7:{
 				limpaTela();
 				Agenda ag = criaAgenda(tamanhoAgenda());
 				ag = leiaAgenda();
